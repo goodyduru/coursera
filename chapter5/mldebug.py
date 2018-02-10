@@ -10,7 +10,6 @@ def linear_reg_cost_function(weight, x, y, reg):
     predictions = x * weight
     diff = predictions - y
     sqr_errors = np.power(diff, 2)
-
     cost = np.sum(sqr_errors) / (2 * m) + (reg * np.sum(np.power(weight[1:], 2))) / (2 * m)
     return cost
 
@@ -34,9 +33,23 @@ def train_lin_reg(x, y, reg):
                                method='CG', jac=linear_reg_gradient, options={'disp': True, 'maxiter': 200})
     return result.x
 
+
+def learning_curve(x, y, xval, yval, reg):
+    m = len(x)
+    error_train = np.zeros([m, 1])
+    error_val = np.zeros([m, 1])
+    i = 1
+    while i <= m:
+        weight = train_lin_reg(x[0:i, :], y[0:i], reg)
+        error_train[i - 1] = linear_reg_cost_function(weight, x[0:i, :], y[0:i], reg)
+        error_val[i - 1] = linear_reg_cost_function(weight, xval, yval, reg)
+        i += 1
+    return error_train, error_val
+
+
 file = matio.loadmat("ex5data1.mat")
 X, y, Xval = np.matrix(file["X"]), np.matrix(file["y"]), np.matrix(file["Xval"])
-yval, Xtext, ytest = np.matrix(file["yval"]), np.matrix(file["Xtest"]), np.matrix(file["ytest"])
+yval, Xtest, ytest = np.matrix(file["yval"]), np.matrix(file["Xtest"]), np.matrix(file["ytest"])
 m = len(X)
 
 # First Plot
@@ -59,3 +72,14 @@ pyplot.plot(X, y, 'rx', X, full_x * result, '--', ms=10, lw=1.5 )
 pyplot.xlabel("Change in water level(x)")
 pyplot.ylabel("Water flowing out of the dam(y)")
 pyplot.show()
+
+full_xval = np.concatenate((np.ones([len(Xval), 1]), Xval), axis=1)
+err_train, err_val = learning_curve(full_x, y, full_xval, yval, 0)
+pyplot.plot(range(0, m), err_train, range(0, m), err_val)
+pyplot.title("Learning curve for linear regression")
+pyplot.legend(["Train", "Cross Validation"])
+pyplot.xlabel("Number of training examples")
+pyplot.ylabel("Error")
+pyplot.axis([0, 13, 0, 150])
+pyplot.show()
+

@@ -2,6 +2,7 @@ import numpy as np
 import scipy.io as matio
 import matplotlib.pyplot as pyplot
 from sklearn import svm
+from decimal import *
 
 
 def plot_data(x, y):
@@ -18,9 +19,7 @@ def linear_kernel(x, y):
     return matrix
 
 
-def gaussian_kernel(x1, x2, sigma):
-    x1 = np.reshape(x1, (np.size(x1), 1))
-    x2 = np.reshape(x2, (np.size(x2), 1))
+def gaussian_kernel(x1, x2, sigma=0.1):
     sim = np.exp(-np.sum(np.power((x1 - x2), 2)) / (2 * (sigma ** 2)))
     return sim
 
@@ -39,6 +38,27 @@ def visualise_boundary_model(x, y, lin, title):
     pyplot.title(title)
     pyplot.show()
 
+
+def data_set_parameters(x, y, x_val, y_val):
+    c_list = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
+    gamma_list = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
+    i, c, g = 0, 0, 0
+    error = Decimal('+Infinity')
+    while i < len(c_list):
+        j = 0
+        while j < len(gamma_list):
+            svc = svm.SVC(kernel="rbf", C=c_list[i], tol=1E-3, gamma=gamma_list[j])
+            svc.fit(x, y)
+            predictions = svc.predict(x_val)
+            mean_error = np.mean(np.where((y_val != predictions), 1, 0))
+            if mean_error < error:
+                c = c_list[i]
+                g = gamma_list[j]
+            j += 1
+        i += 1
+    return c, g
+
+
 file = matio.loadmat("ex6data1.mat")
 input, output = file["X"], np.ravel(file["y"])
 
@@ -48,15 +68,24 @@ C = 1;
 lin = svm.SVC(kernel="linear", C=C, tol=1E-3, max_iter=20)
 clf = lin.fit(input, output)
 visualise_boundary_model(input, output, clf, "Decision Boundary For Linear")
-t1, t2, sig = np.array([1, 2, 1]), np.array([0, 4, -1]), 2
-sim = gaussian_kernel(t1, t2, sig)
+t1, t2 = np.array([1, 2, 1]), np.array([0, 4, -1])
+sim = gaussian_kernel(t1, t2, sigma=2)
 print(sim)
 
 file = matio.loadmat("ex6data2.mat")
 input, output = file["X"], np.ravel(file["y"])
 plot_data(input, output)
 
-C, gamma = 1, 0.1
-lin = svm.SVC(kernel="rbf", C=C, tol=1E-3, max_iter=5)
+C, gamma = 13, 1
+lin = svm.SVC(kernel="rbf", C=C, tol=1E-3, gamma=gamma)
 clf = lin.fit(input, output)
 visualise_boundary_model(input, output, clf, "Decision Boundary For Gaussian")
+
+file = matio.loadmat("ex6data3.mat")
+input, output, xval, yval = file["X"], np.ravel(file["y"]), file["Xval"], np.ravel(file["yval"])
+plot_data(input, output)
+
+C, gamma = data_set_parameters(input, output, xval, yval)
+lin = svm.SVC(kernel="rbf", C=C, tol=1E-3, gamma=gamma)
+clf = lin.fit(input, output)
+visualise_boundary_model(input, output, clf, "Decision Boundary For RBF")

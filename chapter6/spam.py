@@ -89,3 +89,5 @@ with open('emailSample1.txt', 'r') as file:
     p = clf.predict(Xtest)
     print("Test Accuracy was", np.mean(np.where((p == ytest), 1, 0)) * 100)
 
+    p = clf.predict(features.T)
+    print(p)

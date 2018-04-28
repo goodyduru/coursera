@@ -44,7 +44,6 @@ def plot_progress_kmeans(input, centroids, previous, idx, K, i):
     pyplot.plot(centroids[:, 0], centroids[:, 1], 'kx', ms=10, lw=3)
 
 
-
 def run_kmeans(input, centroids, iter):
     (m, n) = input.shape
     K = len(centroids)

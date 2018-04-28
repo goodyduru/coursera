@@ -2,57 +2,58 @@ import numpy as np
 import pandas
 import matplotlib.pyplot as pyplot
 
-def warmUp():
+
+def warm_up():
     a = np.identity(5)
     print(a)
 
-warmUp()
+warm_up()
 file = pandas.read_csv("ex1data1.csv", header=None)
 arr = np.matrix(file)
-xval = arr[:, 0]
-yval = arr[:, 1]
-pyplot.plot(xval, yval, "r+", markersize=10)
+x_val = arr[:, 0]
+y_val = arr[:, 1]
+pyplot.plot(x_val, y_val, "r+", markersize=10)
 pyplot.xlabel("Profit in 10000s")
 pyplot.ylabel("Population in 10000s")
 pyplot.show()
-m = len(yval)
+m = len(y_val)
 ones = np.ones([m, 1])
-X = np.concatenate((ones, xval), axis=1)
+X = np.concatenate((ones, x_val), axis=1)
 theta = np.zeros([2, 1])
 
 iterations = 1500
 alpha = 0.01
 
-def computeCost(X, y, theta):
-    m = len(y)
-    J = 0
-    predictions = X * theta
-    sqrErrors = np.power((predictions - y), 2)
-    J = 1/(2 * m) * np.sum(sqrErrors)
-    return J
 
-J = computeCost(X, yval, theta)
+def compute_cost(input_matrix, output_matrix, weight):
+    num_rows = len(output_matrix)
+    predictions = input_matrix * weight
+    sqr_errors = np.power((predictions - output_matrix), 2)
+    cost = 1/(2 * num_rows) * np.sum(sqr_errors)
+    return cost
+
+J = compute_cost(X, y_val, theta)
 print(J)
 
-J = computeCost(X, yval, np.matrix("-1; 2"))
+J = compute_cost(X, y_val, np.matrix("-1; 2"))
 print(J)
 
 
-def gradientDescent(X, y, theta, alpha, iterations):
-    m = len(y)
+def gradient_descent(input_matrix, output_matrix, weight, step, max_iter):
+    num_rows = len(output_matrix)
     i = 0
-    while i < iterations:
-        predictions = X * theta
-        errors = predictions - y
-        temp0 = theta[0] - ((alpha/m) * np.sum(errors))
-        temp1 = theta[1] - ((alpha/m) * np.sum(np.multiply(errors, X[:, 1])))
-        theta[0] = temp0
-        theta[1] = temp1
+    while i < max_iter:
+        predictions = input_matrix * weight
+        errors = predictions - output_matrix
+        temp0 = weight[0] - ((step/num_rows) * np.sum(errors))
+        temp1 = weight[1] - ((step/num_rows) * np.sum(np.multiply(errors, input_matrix[:, 1])))
+        weight[0] = temp0
+        weight[1] = temp1
         i += 1
-    return theta
+    return weight
 
 
-theta = gradientDescent(X, yval, theta, alpha, iterations)
+theta = gradient_descent(X, y_val, theta, alpha, iterations)
 print(theta)
 predict = np.matrix(np.array([1, 3.5])) * theta
 print(predict*10000)

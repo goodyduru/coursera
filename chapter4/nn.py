@@ -143,7 +143,6 @@ def compute_numerical_gradients(costFun, theta, args):
     return numgrad
 
 
-
 def check_nn_gradients(lbd):
     input_layer_size = 3
     hidden_layer_size = 5

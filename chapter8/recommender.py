@@ -125,7 +125,7 @@ Theta = np.matrix(file["Theta"])
 col = np.ravel(R[0, :])
 tec = np.where((col == 1))
 mean = np.mean(Y[0, tec[0]])
-print(mean)
+print(mean);
 
 print("Plotting The Recommendations", end="\n")
 pyplot.imshow(Y)
